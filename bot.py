@@ -1,19 +1,19 @@
-import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     CallbackQueryHandler, ContextTypes, filters
 )
-from dotenv import load_dotenv
 
-load_dotenv()
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-ADMIN_ID = int(os.getenv("nahom", "7598974440"))  # Replace with your Telegram ID
+# 🔐 Directly set your bot token and admin ID here
+TOKEN = "7869537534:AAFS5eDlLkDctuyrUZ87xCT_JA8RwDrO0Yg"
+ADMIN_ID = 7598974440  # Replace with your Telegram user ID
 
-user_sessions = {}
-leaders = {}  # name → Telegram ID
-logs = []     # list of {"user_id", "leader", "message"}
+# 🧠 In-memory storage
+user_sessions = {}  # user_id → selected leader
+leaders = {}        # leader_name → Telegram ID
+logs = []           # list of {"user_id", "leader", "message"}
 
+# 🚀 Start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     keyboard = [[InlineKeyboardButton("🙏 New Prayer Request", callback_data="new_request")]]
@@ -28,6 +28,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode="Markdown"
     )
 
+# 🎛️ Handle button actions
 async def select_leader(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -90,6 +91,7 @@ async def select_leader(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_sessions[user_id] = query.data
     await query.edit_message_text(f"💬 You selected *{query.data}*.\nSend your prayer request:", parse_mode="Markdown")
 
+# 💬 Handle messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text
@@ -119,6 +121,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Please start with /start")
 
+# 🧠 Main function
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
